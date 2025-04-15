@@ -1,27 +1,50 @@
 "use strict"
 
-const express = require('express')
-const bodyParser = require('body-parser')
+import express from "express"
+import cors from "cors"
+import cookieParser from "cookie-parser"
+import mongoose from "mongoose"
+import { USER, HOST, DATABASE, PASSWORD, PORT } from "./config/index.js"
+import Router from "./routers/index.js"
+import Auth from "./routers/auth.js"
+import pg from "pg"
 
-const app = express()
+// == create server ==
+const server = express()
 
-const PORT = 3000
+const SERVER_PORT = 3000
 
-app.set('view engine', 'ejs')
+server.set('view engine', 'ejs')
+
+// == configure header information ==
+server.use(cors())
+server.disable("x-powered-by")
+server.use(cookieParser())
+server.use(express.urlencoded({ extended: false}))
+server.use(express.json())
+
+// == connect to database ==
+//const { Pool } = pg
+
+//const pool = new Pool({
+//    user: USER,
+//    host: HOST,
+//    database: DATABASE,
+//    password: PASSWORD,
+//    port: PORT,
+//});
 
 
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-        extended: true
-    }))
 
 
-app.get('/', (req, res) => {
-	res.render('index')
-})
+// == configure routes ==
+Router(server)
+server.use('/v1/auth', Auth);
 
 
-app.listen(PORT, () => {
+
+// == startup server ==
+server.listen(SERVER_PORT, () => {
 console.log('server running on port 3000')
 })
