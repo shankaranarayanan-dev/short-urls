@@ -4,10 +4,9 @@ import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
 import mongoose from "mongoose"
-import { USER, HOST, DATABASE, PASSWORD, PORT } from "./config/index.js"
+import { URL } from "./config/index.js"
 import Router from "./routers/index.js"
-import Auth from "./routers/auth.js"
-import pg from "pg"
+
 
 // == create server ==
 const server = express()
@@ -24,15 +23,15 @@ server.use(express.urlencoded({ extended: false}))
 server.use(express.json())
 
 // == connect to database ==
-//const { Pool } = pg
-
-//const pool = new Pool({
-//    user: USER,
-//    host: HOST,
-//    database: DATABASE,
-//    password: PASSWORD,
-//    port: PORT,
-//});
+mongoose.promise = global.promise
+mongoose.set("strictQuery", false)
+mongoose
+	.connect(URL, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true,
+	})
+	.then(console.log("Connected to DB"))
+	.catch((err) => console.log(err))
 
 
 
@@ -40,7 +39,7 @@ server.use(express.json())
 
 // == configure routes ==
 Router(server)
-server.use('/v1/auth', Auth);
+//server.use('/v1/auth', Auth);
 
 
 

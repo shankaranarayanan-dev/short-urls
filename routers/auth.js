@@ -5,6 +5,29 @@ import { check } from "express-validator"
 
 const router = express.Router()
 
-router.post("/register", Register)
+router.post("/register", 
+			check("email")
+				.isEmail()
+				.withMessage("Enter a valid email address")
+				.normalizeEmail(),
+			check("firstname")
+				.not()
+				.isEmpty()
+				.withMessage("Your first name is required")
+				.trim()
+				.escape(),
+			check("lastname")
+				.not()
+				.isEmpty()
+				.withMessage("Your last name is required")
+				.trim()
+				.escape(),
+			check("password")
+				.notEmpty()
+				.isLength({ min: 8})
+				.withMessage("Must be atleast 8 chars long"),
+			Validate,
+			Register
+)
 
 export default router

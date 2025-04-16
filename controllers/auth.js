@@ -1,67 +1,38 @@
-import pg from "pg"
+import User from "../models/User.js"
 
-const { Pool } = pg
-
-import { USER, HOST, DATABASE, PASSWORD, PORT } from "../config/index.js"
-
-const pool = new Pool({
-    user: USER,
-    host: HOST,
-    database: DATABASE,
-    password: PASSWORD,
-    port: PORT,
-});
-
-
-
-export async function Register (req, res) {
-	const {firstname, lastname, email, password } = req.body
+export async function Register(req, res){
 	
-	console.log(firstname, lastname, email, password )
-	//console.log(pool) 
-	console.log(USER, HOST, DATABASE, PASSWORD, PORT )
-
+	const { firstname, lastname, email, password } = req.body
 	
-	
-	try
-	{		
-		const existingUser = await pool.query('select * from users where email = $1',[email], (error, results) => {
-		setTimeout(()=>{console.log('checking')}, 2000)
-		
-		if(existingUser) {
-			console.log('return')
-		return res.status(400).json({
-		status: "failed",
-		data: [],
-		message: "It seems you already have an account"
+	try{
+		const newUser = new User({
+			firstname,
+			lastname,
+			email,
+			password,
 		})
-		}
-	})
-	
-	
-		const saveUser = await pool.query('INSERT INTO users  (firstname, lastname, email, password) VALUES ($1, $2, $3, $4)', [firstname, lastname, email, password] , (error, results) => {
-		if (error) {
-		  res.status(500).json({
-			  status: "error",
-			  code: 500,
-			  data: [],
-			  message: "Internal Server Error",
-		  })
-		}
+		// == check if user already exists ==
+		const existingUser = await User.findOne({ email })
+		if(existingUser)
+			return res.status(400).json({
+				status: "failed",
+				data: [],
+				message: "User already exists"
+			})
+		const savedUser = await newUser.save()
+		const { role, ...user_data} = savedUser._doc
 		res.status(200).json({
 			status: "success",
-			data: [],
-			message: "Thank you for registering with us. Your account has been successfully created."
+			data: [user_data],
+			message: "Thanks for registering"
 		})
-	  })
-		} catch(err) {
-			console.log(err)
-			res.status(500).json({
-				status: "error",
-				code: 501,
-				data: [],
-				message: "Internal Server Error"
-			})
+	} catch(err){
+		res.status(500).json({
+			status: "error",
+			code: 500,
+			data: [],
+			message: "Internal Server Error"
+		})
 	}
+	res.end()
 }
-
