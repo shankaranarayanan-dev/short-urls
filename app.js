@@ -6,7 +6,7 @@ import cookieParser from "cookie-parser"
 import mongoose from "mongoose"
 import { URL } from "./config/index.js"
 import Router from "./routers/index.js"
-
+import { Verify } from "./middleware/verify.js"
 
 // == create server ==
 const server = express()
@@ -38,6 +38,7 @@ mongoose
 
 
 // == configure routes ==
+
 Router(server)
 //server.use('/v1/auth', Auth);
 

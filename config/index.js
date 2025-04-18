@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv'
 
 dotenv.config()
 
-const { URL } = process.env
+const { URL, SECRET_ACCESS_TOKEN  } = process.env
 
-export { URL }
+export { URL, SECRET_ACCESS_TOKEN }
 
