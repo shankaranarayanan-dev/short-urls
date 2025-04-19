@@ -1,5 +1,6 @@
 import User from "../models/User.js"
 import bcrypt from "bcrypt"
+import Blacklist from "../models/User.js"
 
 // == registration logic ==
 export async function Register(req, res){
@@ -91,4 +92,31 @@ export async function Login(req, res){
 		})
 	}
 	res.end()
+}
+
+export async function Logout(req, res){
+	try {
+		console.log('logout logic')
+		const authHeader = req.headers['cookie']
+		if(!authHeader) return res.sendStatus(204)
+		const cookie = authHeader.split('=')[1]
+		const accessToken = cookie.split(';')[0]
+		const checkIfBlacklisted = Blacklist.findOne({ token: accessToken })
+		
+		if(checkIfBlacklisted) return res.sendStatus(204)
+		
+		const newBlacklist = new Blacklist({
+			token: accessToken,
+		})
+		const returnData = await newBlacklist.save()
+		res.setHeader("Clear-Site-Data", '"cookies"')
+		res.status(200).json({message: "you are logged out"})
+	}catch(err){
+		res.status(500).json({
+			status: 'Error Blacklist',
+			message: "Internal Server Error"
+		})
+	}
+	res.end()
+	//next()
 }
